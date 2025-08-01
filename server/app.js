@@ -6,13 +6,13 @@ const indexRouter = require("./routes/index-router");
 const loginRouter = require("./routes/login-router");
 const registerRouter = require("./routes/register-router");
 const authRouter = require("./routes/auth-router");
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
 
 const PORT = process.env.PORT;
 const HOSTNAME = process.env.HOSTNAME;
 
 const distPath = path.join(__dirname, "../frontend/dist");
+
+app.use(express.json());
 
 app.use("@", (req, res) => {
   res.sendFile(distPath, "index.html");

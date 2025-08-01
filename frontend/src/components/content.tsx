@@ -40,6 +40,11 @@ export const Container = ({ children }: Prop) => {
   );
 };
 
+type LoginErrorsType = {
+  username?: string;
+  password?: string;
+};
+
 export const Login = () => {
   const [input, setInput] = useState({
     username: "",
@@ -53,7 +58,7 @@ export const Login = () => {
   const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const errors = {};
+    const errors: LoginErrorsType = {};
 
     if (input.username === "") {
       errors.username = "cannot be blank";
@@ -74,10 +79,20 @@ export const Login = () => {
   };
 
   const onBlurUsername = async () => {
-    const errors = {};
+    const response = await fetch("/api/login/check-username/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: input.username }),
+    });
+
+    const { exists } = await response.json();
+
+    const errors: LoginErrorsType = {};
 
     if (input.username === "") {
       errors.username = "cannot be blank";
+    } else if (!exists) {
+      errors.username = "username does not exist";
     } else {
       errors.username = "";
     }
@@ -89,7 +104,7 @@ export const Login = () => {
   };
 
   const onBlurPassword = () => {
-    const errors = {};
+    const errors: LoginErrorsType = {};
 
     if (input.password === "") {
       errors.password = "cannot be blank";
@@ -136,6 +151,12 @@ export const Login = () => {
   );
 };
 
+type RegisterErrorsType = {
+  username?: string;
+  password?: string;
+  confirmPassword?: string;
+};
+
 export const Register = () => {
   const [input, setInput] = useState({
     username: "",
@@ -151,10 +172,20 @@ export const Register = () => {
   const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const errors = {};
+    const response = await fetch("/api/register/check-username/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: input.username }),
+    });
+
+    const { available } = await response.json();
+
+    const errors: RegisterErrorsType = {};
 
     if (input.username === "") {
       errors.username = "cannot be blank";
+    } else if (!available) {
+      errors.username = "username is taken";
     } else {
       errors.username = "";
     }
@@ -178,10 +209,20 @@ export const Register = () => {
   };
 
   const onBlurUsername = async () => {
-    const errors = {};
+    const response = await fetch("/api/register/check-username/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: input.username }),
+    });
+
+    const { available } = await response.json();
+
+    const errors: RegisterErrorsType = {};
 
     if (input.username === "") {
       errors.username = "cannot be blank";
+    } else if (!available) {
+      errors.username = "username is taken";
     } else {
       errors.username = "";
     }
@@ -193,7 +234,7 @@ export const Register = () => {
   };
 
   const onBlurPassword = () => {
-    const errors = {};
+    const errors: RegisterErrorsType = {};
 
     if (input.password === "") {
       errors.password = "cannot be blank";
@@ -206,7 +247,7 @@ export const Register = () => {
   };
 
   const onBlurConfirmPassword = () => {
-    const errors = {};
+    const errors: RegisterErrorsType = {};
 
     if (input.confirmPassword === "") {
       errors.confirmPassword = "cannot be blank";
