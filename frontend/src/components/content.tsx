@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState, type ReactNode } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export const Header = () => {
   return (
@@ -55,7 +55,7 @@ export const Login = () => {
     password: "",
   });
 
-  const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const errors: LoginErrorsType = {};
@@ -168,8 +168,9 @@ export const Register = () => {
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
 
-  const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const response = await fetch("/api/register/check-username/", {
@@ -186,25 +187,54 @@ export const Register = () => {
       errors.username = "cannot be blank";
     } else if (!available) {
       errors.username = "username is taken";
-    } else {
-      errors.username = "";
     }
 
     if (input.password === "") {
       errors.password = "cannot be blank";
-    } else {
-      errors.password = "";
     }
 
     if (input.confirmPassword === "") {
       errors.confirmPassword = "cannot be blank";
-    } else {
-      errors.confirmPassword = "";
+    } else if (input.password !== input.confirmPassword) {
+      errors.confirmPassword = "passwords must match";
     }
 
     if (Object.keys(errors).length > 0) {
       setError((prev) => ({ ...prev, ...errors }));
       return;
+    }
+
+    try {
+      const response = await fetch("/api/register/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          username: input.username,
+          password: input.password,
+          confirmPassword: input.confirmPassword,
+        }),
+      });
+
+      if (response.ok) {
+        setError({
+          username: "",
+          password: "",
+          confirmPassword: "",
+        });
+        navigate("/");
+      } else {
+        setError({
+          username: "server error",
+          password: "server error",
+          confirmPassword: "server error",
+        });
+      }
+    } catch {
+      setError({
+        username: "server error",
+        password: "server error",
+        confirmPassword: "server error",
+      });
     }
   };
 
@@ -238,6 +268,8 @@ export const Register = () => {
 
     if (input.password === "") {
       errors.password = "cannot be blank";
+    } else {
+      errors.password = "";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -257,6 +289,7 @@ export const Register = () => {
 
     if (Object.keys(errors).length > 0) {
       setError((prev) => ({ ...prev, ...errors }));
+      return;
     }
   };
 

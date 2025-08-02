@@ -7,4 +7,10 @@ const getUsernames = async (username) => {
   });
 };
 
-module.exports = { getUsernames };
+const insertUser = async (username, password) => {
+  return await prisma.user.create({
+    data: { username, password },
+  });
+};
+
+module.exports = { getUsernames, insertUser };
