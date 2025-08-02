@@ -13,4 +13,16 @@ const insertUser = async (username, password) => {
   });
 };
 
-module.exports = { getUsernames, insertUser };
+const getUserByUsername = async (username, password) => {
+  return await prisma.user.findUnique({
+    where: { username },
+  });
+};
+
+const getUserById = async (id) => {
+  return await prisma.user.findUnique({
+    where: { id },
+  });
+};
+
+module.exports = { getUsernames, insertUser, getUserByUsername, getUserById };

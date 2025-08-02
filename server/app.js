@@ -9,6 +9,8 @@ const authRouter = require("./routes/auth-router");
 const session = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
+const passport = require("passport");
+require("./passport-config");
 
 const PORT = process.env.PORT;
 const HOSTNAME = process.env.HOSTNAME;
@@ -31,6 +33,8 @@ app.use(
     }),
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("@", (req, res) => {
   res.sendFile(distPath, "index.html");

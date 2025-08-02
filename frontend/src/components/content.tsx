@@ -54,27 +54,63 @@ export const Login = () => {
     username: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const response = await fetch("/api/login/check-username/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: input.username }),
+    });
+
+    const { exists } = await response.json();
 
     const errors: LoginErrorsType = {};
 
     if (input.username === "") {
       errors.username = "cannot be blank";
-    } else {
-      errors.username = "";
+    } else if (!exists) {
+      errors.username = "username does not exist";
     }
 
     if (input.password === "") {
       errors.password = "cannot be blank";
-    } else {
-      errors.password = "";
     }
 
     if (Object.keys(errors).length > 0) {
       setError((prev) => ({ ...prev, ...errors }));
       return;
+    }
+
+    try {
+      const response = await fetch("/api/login/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          username: input.username,
+          password: input.password,
+        }),
+      });
+
+      if (response.ok) {
+        setInput({
+          username: "",
+          password: "",
+        });
+        navigate("/");
+        return;
+      }
+
+      if (response.status === 401) {
+        setError((prev) => ({ ...prev, password: "incorrect password" }));
+      }
+    } catch {
+      setError({
+        username: "server error",
+        password: "server error",
+      });
     }
   };
 
