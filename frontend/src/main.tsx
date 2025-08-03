@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { LoginPage, RegisterPage } from "./pages/index.ts";
+import { LoginPage, RegisterPage, HomePage, FilePage } from "./pages/index.ts";
 import "./index.css";
 import App from "./App.tsx";
 
@@ -12,7 +12,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <LoginPage />,
+        element: <HomePage />,
       },
       {
         path: "login",
@@ -21,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: "register",
         element: <RegisterPage />,
+      },
+      {
+        path: "files",
+        element: <FilePage />,
       },
     ],
   },

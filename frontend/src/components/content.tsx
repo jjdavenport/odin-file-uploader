@@ -268,10 +268,14 @@ export const Register = () => {
 
     if (input.password === "") {
       errors.password = "cannot be blank";
+    } else if (input.password.length < 8) {
+      errors.password = "password must be 8 letters or more";
     }
 
     if (input.confirmPassword === "") {
       errors.confirmPassword = "cannot be blank";
+    } else if (input.confirmPassword.length > 8) {
+      errors.confirmPassword = "password must be 8 letters or more";
     } else if (input.password !== input.confirmPassword) {
       errors.confirmPassword = "passwords must match";
     }
@@ -345,6 +349,8 @@ export const Register = () => {
 
     if (input.password === "") {
       errors.password = "cannot be blank";
+    } else if (input.password.length < 8) {
+      errors.password = "password must be 8 letters or more";
     } else {
       errors.password = "";
     }
@@ -360,6 +366,10 @@ export const Register = () => {
 
     if (input.confirmPassword === "") {
       errors.confirmPassword = "cannot be blank";
+    } else if (input.confirmPassword.length < 8) {
+      errors.confirmPassword = "password must be 8 letters or more";
+    } else if (input.password !== input.confirmPassword) {
+      errors.confirmPassword = "passwords must match";
     } else {
       errors.confirmPassword = "";
     }
@@ -482,16 +492,41 @@ const Form = ({ children, onSubmit }: FormProps) => {
   );
 };
 
+type UploadOutletType = {
+  loggedIn: boolean;
+};
+
 export const UploadFile = () => {
   const [file, setFile] = useState(false);
+  const { loggedIn } = useOutletContext<UploadOutletType>();
   const onSubmit = async () => {};
   return (
     <>
-      <Form onSubmit={onSubmit}>
-        <button>{file ? <Upload /> : <File />}</button>
-        <input className="hidden" type="file" />
-        <Button text="Upload" />
-      </Form>
+      {loggedIn ? (
+        <Form onSubmit={onSubmit}>
+          {file ? (
+            <button className="flex p-4 outline">
+              <Upload />
+            </button>
+          ) : (
+            <div className="flex justify-center p-4 outline">
+              <File />
+            </div>
+          )}
+
+          <input className="hidden" type="file" />
+          <Button text="Upload" />
+        </Form>
+      ) : (
+        <div className="flex flex-col gap-4 p-4 outline">
+          <Link className="flex justify-center p-4 outline" to="/login/">
+            <Upload />
+          </Link>
+          <Link className="p-1 text-center outline" to="/login/">
+            Upload
+          </Link>
+        </div>
+      )}
     </>
   );
 };
