@@ -8,8 +8,8 @@ function App() {
     <>
       <Wrapper>
         <Container>
-          <Header />
-          <Outlet context={{ loggedIn }} />
+          <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+          <Outlet context={{ loggedIn, setLoggedIn }} />
         </Container>
       </Wrapper>
     </>

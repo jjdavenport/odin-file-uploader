@@ -23,8 +23,8 @@ app.use(
     cookie: {
       maxAge: 7 * 24 * 60 * 1000,
     },
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     secret: "cats",
     store: new PrismaSessionStore(new PrismaClient(), {
       dbRecordIdIsSessionId: true,

@@ -46,3 +46,14 @@ exports.login = async (req, res, next) => {
     });
   })(req, res, next);
 };
+
+exports.logout = async (req, res, next) => {
+  req.logout((error) => {
+    if (error) return next(error);
+    req.session.destroy((error) => {
+      if (error) return next(error);
+      res.clearCookie("connect.sid");
+      res.json({ success: true, message: "logged out" });
+    });
+  });
+};

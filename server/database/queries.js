@@ -13,7 +13,7 @@ const insertUser = async (username, password) => {
   });
 };
 
-const getUserByUsername = async (username, password) => {
+const getUserByUsername = async (username) => {
   return await prisma.user.findUnique({
     where: { username },
   });

@@ -1,4 +1,4 @@
-import { Login, Register } from "../components/content";
+import { Login, Register, UploadFile, Files } from "../components/content";
 
 export const LoginPage = () => {
   return (
@@ -12,6 +12,22 @@ export const RegisterPage = () => {
   return (
     <>
       <Register />
+    </>
+  );
+};
+
+export const HomePage = () => {
+  return (
+    <>
+      <UploadFile />
+    </>
+  );
+};
+
+export const FilePage = () => {
+  return (
+    <>
+      <Files />
     </>
   );
 };

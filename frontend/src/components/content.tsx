@@ -1,22 +1,57 @@
 import type React from "react";
 import { useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useOutletContext } from "react-router";
+import { Upload, File } from "lucide-react";
 
-export const Header = () => {
+type HeaderProps = {
+  loggedIn: boolean;
+  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const Header = ({ loggedIn, setLoggedIn }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/logout/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+      });
+      if (response.ok) {
+        setLoggedIn(false);
+        navigate("/");
+      }
+    } catch {
+      console.log("failed to logout");
+    }
+  };
+
   return (
-    <>
-      <header className="flex justify-between">
-        <h1 className="text-xl">fileUploader</h1>
-        <nav className="flex gap-4">
-          <Link className="hover:underline" to="/login/">
-            Login
-          </Link>
-          <Link className="hover:underline" to="/register/">
-            Sign up
-          </Link>
-        </nav>
-      </header>
-    </>
+    <header className="flex justify-between">
+      <h1 className="text-xl">fileUploader</h1>
+      <nav className="flex items-center gap-4">
+        {loggedIn ? (
+          <>
+            <Link className="hover:underline" to="/files/">
+              Files
+            </Link>
+            <button className="cursor-pointer hover:underline" onClick={logout}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link className="hover:underline" to="/login/">
+              Login
+            </Link>
+            <Link className="hover:underline" to="/register/">
+              Sign up
+            </Link>
+          </>
+        )}
+      </nav>
+    </header>
   );
 };
 
@@ -45,6 +80,10 @@ type LoginErrorsType = {
   password?: string;
 };
 
+type OutletType = {
+  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 export const Login = () => {
   const [input, setInput] = useState({
     username: "",
@@ -55,6 +94,7 @@ export const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
+  const { setLoggedIn } = useOutletContext<OutletType>();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -99,6 +139,7 @@ export const Login = () => {
           username: "",
           password: "",
         });
+        setLoggedIn(true);
         navigate("/");
         return;
       }
@@ -441,16 +482,20 @@ const Form = ({ children, onSubmit }: FormProps) => {
   );
 };
 
-export const Upload = () => {
+export const UploadFile = () => {
+  const [file, setFile] = useState(false);
   const onSubmit = async () => {};
-
   return (
     <>
       <Form onSubmit={onSubmit}>
-        <button></button>
+        <button>{file ? <Upload /> : <File />}</button>
         <input className="hidden" type="file" />
         <Button text="Upload" />
       </Form>
     </>
   );
+};
+
+export const Files = () => {
+  return <></>;
 };
