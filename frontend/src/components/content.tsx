@@ -1,7 +1,7 @@
 import type React from "react";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router";
-import { Upload, File } from "lucide-react";
+import { Upload, File, Trash2 } from "lucide-react";
 
 type HeaderProps = {
   loggedIn: boolean;
@@ -274,7 +274,7 @@ export const Register = () => {
 
     if (input.confirmPassword === "") {
       errors.confirmPassword = "cannot be blank";
-    } else if (input.confirmPassword.length > 8) {
+    } else if (input.confirmPassword.length < 8) {
       errors.confirmPassword = "password must be 8 letters or more";
     } else if (input.password !== input.confirmPassword) {
       errors.confirmPassword = "passwords must match";
@@ -497,24 +497,98 @@ type UploadOutletType = {
 };
 
 export const UploadFile = () => {
-  const [file, setFile] = useState(false);
+  const [file, setFile] = useState(null);
+  const [drag, setDrag] = useState(false);
+  const dragging = useRef(0);
+  const inputRef = useRef(null);
   const { loggedIn } = useOutletContext<UploadOutletType>();
-  const onSubmit = async () => {};
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    if (!file) return;
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/auth/upload/", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (response.ok) {
+        setFile(null);
+      }
+    } catch {
+      console.log("error");
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDrag(true);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragging.current += 1;
+    setDrag(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragging.current -= 1;
+    if (dragging.current === 0) {
+      setDrag(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragging.current = 0;
+    setDrag(false);
+    setFile(e.dataTransfer.files[0]);
+  };
+
   return (
     <>
       {loggedIn ? (
         <Form onSubmit={onSubmit}>
-          {file ? (
-            <button className="flex p-4 outline">
+          {file !== null ? (
+            <div className="flex flex-col items-center justify-center p-4 outline">
+              <div className="flex w-full justify-end">
+                <button
+                  onClick={() => setFile(null)}
+                  className="group cursor-pointer"
+                >
+                  <Trash2 className="group-hover:text-red-600" />
+                </button>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <File />
+                <span> {file.name}</span>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => inputRef.current.click()}
+              onDragLeave={handleDragLeave}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              className={`${drag ? "bg-gray-400/20" : "bg-transparent"} flex cursor-pointer justify-center p-4 outline`}
+            >
               <Upload />
             </button>
-          ) : (
-            <div className="flex justify-center p-4 outline">
-              <File />
-            </div>
           )}
 
-          <input className="hidden" type="file" />
+          <input
+            ref={inputRef}
+            onChange={(e) => setFile(e.target.files[0])}
+            className="hidden"
+            type="file"
+          />
           <Button text="Upload" />
         </Form>
       ) : (

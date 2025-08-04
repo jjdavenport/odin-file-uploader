@@ -10,6 +10,7 @@ const session = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
 const passport = require("passport");
+const authenticate = require("./middleware/authenticate");
 require("./passport-config");
 
 const PORT = process.env.PORT;
@@ -45,6 +46,8 @@ app.use(express.static(distPath));
 app.use("/api/", indexRouter);
 app.use("/api/login/", loginRouter);
 app.use("/api/register/", registerRouter);
+
+app.use(authenticate);
 
 app.use("/api/auth/", authRouter);
 

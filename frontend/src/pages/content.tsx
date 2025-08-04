@@ -24,10 +24,14 @@ export const HomePage = () => {
   );
 };
 
-export const FilePage = () => {
+export const FilesPage = () => {
   return (
     <>
       <Files />
     </>
   );
+};
+
+export const FilePage = () => {
+  return <></>;
 };

@@ -25,4 +25,22 @@ const getUserById = async (id) => {
   });
 };
 
-module.exports = { getUsernames, insertUser, getUserByUsername, getUserById };
+const insertUpload = async (
+  userId,
+  file_name,
+  file_original_name,
+  file_type,
+  file_size
+) => {
+  return await prisma.upload.create({
+    data: { userId, file_name, file_original_name, file_type, file_size },
+  });
+};
+
+module.exports = {
+  getUsernames,
+  insertUser,
+  getUserByUsername,
+  getUserById,
+  insertUpload,
+};
