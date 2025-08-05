@@ -1,4 +1,10 @@
-import { Login, Register, UploadFile, Files } from "../components/content";
+import {
+  Login,
+  Register,
+  UploadFile,
+  Files,
+  NewFolder,
+} from "../components/content";
 
 export const LoginPage = () => {
   return (
@@ -34,4 +40,12 @@ export const FilesPage = () => {
 
 export const FilePage = () => {
   return <></>;
+};
+
+export const NewFolderPage = () => {
+  return (
+    <>
+      <NewFolder />
+    </>
+  );
 };

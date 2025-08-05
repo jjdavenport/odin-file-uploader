@@ -1,7 +1,7 @@
 import type React from "react";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router";
-import { Upload, File, Trash2 } from "lucide-react";
+import { Upload, File, Trash2, Download, Folder } from "lucide-react";
 
 type HeaderProps = {
   loggedIn: boolean;
@@ -606,5 +606,130 @@ export const UploadFile = () => {
 };
 
 export const Files = () => {
-  return <></>;
+  const [files, setFiles] = useState([]);
+  const [folders, setFolders] = useState([]);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      const response = await fetch("/api/auth/files/", {
+        method: "GET",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+      });
+      const data = await response.json();
+      setFiles(data.files);
+    };
+    fetchFiles();
+  }, []);
+
+  useEffect(() => {
+    const fetchFolders = async () => {
+      const response = await fetch("/api/auth/folders/", {
+        method: "GET",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+      });
+      const data = await response.json();
+      setFolders(data.folders);
+    };
+    fetchFolders();
+  }, []);
+
+  const deleteFile = async () => {
+    const response = await fetch("/api/auth/delete-file/", {
+      method: "DELETE",
+      credentials: "include",
+    });
+  };
+
+  const downloadFile = async () => {
+    const response = await fetch("/api/auth/download-file", {
+      method: "GET",
+      credentials: "include",
+    });
+  };
+
+  return (
+    <>
+      <Link className="p-1 text-center outline" to="/new-folder/">
+        New Folder
+      </Link>
+      <ul>
+        {folders.map((i, index) => (
+          <li className="flex gap-2" key={index}>
+            <Folder />
+            <span>{i.folder_name}</span>
+          </li>
+        ))}
+      </ul>
+      <ul className="flex flex-col gap-2">
+        {files.map((i, index) => (
+          <li className="flex justify-between gap-2" key={index}>
+            <div className="flex gap-2">
+              <File />
+              <span>{i.file_original_name}</span>
+            </div>
+            <nav className="flex gap-4">
+              <button className="group cursor-pointer" onClick={downloadFile}>
+                <Download className="group-hover:text-blue-600" />
+              </button>
+              <button className="group cursor-pointer" onClick={deleteFile}>
+                <Trash2 className="group-hover:text-red-600" />
+              </button>
+            </nav>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+};
+
+export const NewFolder = () => {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (input === "") {
+      setError("cannot be blank");
+      return;
+    } else {
+      setError("");
+    }
+
+    await fetch("/api/auth/new-folder/", {
+      credentials: "include",
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: input }),
+    });
+    navigate("/files/");
+  };
+
+  const handleBlur = () => {
+    if (input === "") {
+      setError("cannot be blank");
+    } else {
+      setError("");
+    }
+  };
+
+  return (
+    <>
+      <Form onSubmit={onSubmit}>
+        <Input
+          type="text"
+          placeholder="name"
+          label="name"
+          error={error}
+          onBlur={handleBlur}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <Button text="Add folder" />
+      </Form>
+    </>
+  );
 };

@@ -12,6 +12,7 @@ model User {
     username String @unique @db.VarChar(255)
     password String @db.VarChar(255)
     uploads Upload[]
+    folders Folder[]
 }
 
 model Upload {
@@ -23,6 +24,8 @@ model Upload {
     created_at DateTime @default(now())
     userId Int
     user User @relation(fields: [userId], references: [id])
+    folderId Int?
+    folder Folder? @relation(fields: [folderId], references: [id])
 }
 
 model Session {
@@ -30,4 +33,13 @@ model Session {
     sid String @unique
     data String
     expiresAt DateTime
+}
+
+model Folder {
+    id Int @id @default(autoincrement())
+    folder_name String
+    created_at DateTime @default(now())
+    userId Int
+    user User @relation(fields: [userId], references: [id])
+    files Upload[]
 }

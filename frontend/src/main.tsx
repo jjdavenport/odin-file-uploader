@@ -7,6 +7,7 @@ import {
   HomePage,
   FilePage,
   FilesPage,
+  NewFolderPage,
 } from "./pages/index.ts";
 import "./index.css";
 import App from "./App.tsx";
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "file",
         element: <FilePage />,
+      },
+      {
+        path: "new-folder",
+        element: <NewFolderPage />,
       },
     ],
   },

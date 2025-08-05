@@ -37,10 +37,38 @@ const insertUpload = async (
   });
 };
 
+const getFilesByUser = async (userId) => {
+  return await prisma.upload.findMany({
+    where: { userId: userId },
+  });
+};
+
+const deleteFileById = async (id) => {
+  return await prisma.upload.delete({
+    data: { id: id },
+  });
+};
+
+const insertFolder = async (userId, name) => {
+  return await prisma.folder.create({
+    data: { userId: userId, folder_name: name },
+  });
+};
+
+const getFoldersByUser = async (userId) => {
+  return await prisma.folder.findMany({
+    where: { userId: userId },
+  });
+};
+
 module.exports = {
   getUsernames,
   insertUser,
   getUserByUsername,
   getUserById,
   insertUpload,
+  getFilesByUser,
+  deleteFileById,
+  insertFolder,
+  getFoldersByUser,
 };

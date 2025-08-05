@@ -1,4 +1,10 @@
-const { insertUpload } = require("../database/queries");
+const {
+  insertUpload,
+  getFilesByUser,
+  deleteFileById,
+  insertFolder,
+  getFoldersByUser,
+} = require("../database/queries");
 
 exports.upload = async (req, res, next) => {
   if (!req.file) return res.status(400).json({ message: "no files" });
@@ -12,7 +18,59 @@ exports.upload = async (req, res, next) => {
     );
     return res.status(200).json({ success: true, message: "file uploaded" });
   } catch (error) {
-    console.error("Upload Error:", error);
+    return res.status(500).json({ success: false, message: "server error" });
+  }
+};
+
+exports.files = async (req, res) => {
+  try {
+    const files = await getFilesByUser(req.user.id);
+    return res
+      .status(200)
+      .json({ success: true, message: "files returned", files });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "server error" });
+  }
+};
+
+exports.deleteFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await deleteFileById(id);
+    return res.status(200).json({ success: true, message: "file deleted" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "server error" });
+  }
+};
+
+exports.downloadFile = async (req, res) => {
+  try {
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "failed to download" });
+  }
+};
+
+exports.newFolder = async (req, res) => {
+  try {
+    const { name } = req.body;
+    await insertFolder(req.user.id, name);
+    return res.status(200).json({ success: true, message: "new folder added" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "failed to add folder" });
+  }
+};
+
+exports.folders = async (req, res) => {
+  try {
+    const folders = await getFoldersByUser(req.user.id);
+    return res
+      .status(200)
+      .json({ success: true, message: "returned folders", folders });
+  } catch {
     return res.status(500).json({ success: false, message: "server error" });
   }
 };
