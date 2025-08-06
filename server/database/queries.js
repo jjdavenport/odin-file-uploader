@@ -61,6 +61,24 @@ const getFoldersByUser = async (userId) => {
   });
 };
 
+const getFileById = async (id) => {
+  return await prisma.upload.findUnique({
+    where: { id: Number(id) },
+  });
+};
+
+const getFolderById = async (id) => {
+  return await prisma.folder.findUnique({
+    where: { id: Number(id) },
+  });
+};
+
+const deleteFolderById = async (id) => {
+  return await prisma.folder.delete({
+    where: { id: id },
+  });
+};
+
 module.exports = {
   getUsernames,
   insertUser,
@@ -71,4 +89,7 @@ module.exports = {
   deleteFileById,
   insertFolder,
   getFoldersByUser,
+  getFileById,
+  getFolderById,
+  deleteFolderById,
 };

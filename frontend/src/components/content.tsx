@@ -1,7 +1,14 @@
 import type React from "react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useNavigate, useOutletContext } from "react-router";
-import { Upload, File, Trash2, Download, Folder } from "lucide-react";
+import { Link, useNavigate, useOutletContext, useParams } from "react-router";
+import {
+  Upload,
+  File,
+  Trash2,
+  Download,
+  Folder,
+  ChevronRight,
+} from "lucide-react";
 
 type HeaderProps = {
   loggedIn: boolean;
@@ -656,19 +663,24 @@ export const Files = () => {
       </Link>
       <ul>
         {folders.map((i, index) => (
-          <li className="flex gap-2" key={index}>
-            <Folder />
-            <span>{i.folder_name}</span>
+          <li key={index}>
+            <Link to={`/folder/${i.id}`} className="flex justify-between">
+              <div className="flex gap-2">
+                <Folder />
+                <span>{i.folder_name}</span>
+              </div>
+              <ChevronRight />
+            </Link>
           </li>
         ))}
       </ul>
       <ul className="flex flex-col gap-2">
         {files.map((i, index) => (
           <li className="flex justify-between gap-2" key={index}>
-            <div className="flex gap-2">
+            <Link to={`/file/${i.id}`} className="flex gap-2">
               <File />
               <span>{i.file_original_name}</span>
-            </div>
+            </Link>
             <nav className="flex gap-4">
               <button className="group cursor-pointer" onClick={downloadFile}>
                 <Download className="group-hover:text-blue-600" />
@@ -730,6 +742,84 @@ export const NewFolder = () => {
         />
         <Button text="Add folder" />
       </Form>
+    </>
+  );
+};
+
+export const FileDetail = () => {
+  const [data, setData] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchFile = async () => {
+      const response = await fetch(`/api/auth/file/${id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+      });
+      const result = await response.json();
+      setData(result.file);
+    };
+    fetchFile();
+  }, [id]);
+
+  const deleteFile = async () => {
+    await fetch(`/api/auth/file/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    navigate("");
+  };
+
+  return (
+    <>
+      <div>
+        <File />
+        <span>{data?.file_original_name}</span>
+      </div>
+      <button onClick={deleteFile}>
+        <Trash2 />
+      </button>
+    </>
+  );
+};
+
+export const FolderDetail = () => {
+  const [data, setData] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchFolder = async () => {
+      const response = await fetch(`/api/auth/folder/${id}`, {
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        method: "GET",
+      });
+      const result = await response.json();
+      setData(result.folder);
+    };
+    fetchFolder();
+  }, [id]);
+
+  const deleteFolder = async () => {
+    await fetch(`/api/auth/delete-folder/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    navigate("/files/");
+  };
+
+  return (
+    <>
+      <div>
+        <File />
+        <span>{data?.folder_name}</span>
+      </div>
+      <button onClick={deleteFolder}>
+        <Trash2 />
+      </button>
     </>
   );
 };

@@ -4,6 +4,8 @@ import {
   UploadFile,
   Files,
   NewFolder,
+  FileDetail,
+  FolderDetail,
 } from "../components/content";
 
 export const LoginPage = () => {
@@ -39,13 +41,25 @@ export const FilesPage = () => {
 };
 
 export const FilePage = () => {
-  return <></>;
+  return (
+    <>
+      <FileDetail />
+    </>
+  );
 };
 
 export const NewFolderPage = () => {
   return (
     <>
       <NewFolder />
+    </>
+  );
+};
+
+export const FolderPage = () => {
+  return (
+    <>
+      <FolderDetail />
     </>
   );
 };
