@@ -8,6 +8,8 @@ const {
   deleteFolderById,
   getFileById,
 } = require("../database/queries");
+const path = require("path");
+const fs = require("fs");
 
 exports.upload = async (req, res, next) => {
   if (!req.file) return res.status(400).json({ message: "no files" });
@@ -39,6 +41,18 @@ exports.files = async (req, res) => {
 exports.deleteFile = async (req, res) => {
   try {
     const { id } = req.params;
+    const file = await getFileById(id);
+    if (!file)
+      return res
+        .status(404)
+        .json({ success: false, message: "file not found" });
+
+    const filePath = path.join(__dirname, "../uploads", file.file_name);
+    fs.unlink(filePath, (error) => {
+      if (error) {
+        console.error(error);
+      }
+    });
     await deleteFileById(id);
     return res.status(200).json({ success: true, message: "file deleted" });
   } catch (error) {
