@@ -7,7 +7,8 @@ const upload = multer({ dest: path.join(__dirname, "../uploads") });
 
 router.post("/upload/", upload.single("file"), uploadController.upload);
 router.get("/files/", uploadController.files);
-router.delete("/delete-file/", uploadController.deleteFile);
+router.delete("/delete-file/:id", uploadController.deleteFile);
+router.delete("/delete-folder/:id", uploadController.deleteFolder);
 router.get("/download-file/", uploadController.downloadFile);
 router.post("/new-folder/", uploadController.newFolder);
 router.get("/folders/", uploadController.folders);

@@ -642,15 +642,15 @@ export const Files = () => {
     fetchFolders();
   }, []);
 
-  const deleteFile = async () => {
-    const response = await fetch("/api/auth/delete-file/", {
+  const deleteFile = async (id: string) => {
+    await fetch(`/api/auth/delete-file/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
   };
 
   const downloadFile = async () => {
-    const response = await fetch("/api/auth/download-file", {
+    await fetch("/api/auth/download-file", {
       method: "GET",
       credentials: "include",
     });
@@ -685,7 +685,10 @@ export const Files = () => {
               <button className="group cursor-pointer" onClick={downloadFile}>
                 <Download className="group-hover:text-blue-600" />
               </button>
-              <button className="group cursor-pointer" onClick={deleteFile}>
+              <button
+                className="group cursor-pointer"
+                onClick={() => deleteFile(i.id)}
+              >
                 <Trash2 className="group-hover:text-red-600" />
               </button>
             </nav>
@@ -778,8 +781,8 @@ export const FileDetail = () => {
         <File />
         <span>{data?.file_original_name}</span>
       </div>
-      <button onClick={deleteFile}>
-        <Trash2 />
+      <button className="group cursor-pointer" onClick={deleteFile}>
+        <Trash2 className="group-hover:text-red-600" />
       </button>
     </>
   );
@@ -813,13 +816,15 @@ export const FolderDetail = () => {
 
   return (
     <>
-      <div>
-        <File />
-        <span>{data?.folder_name}</span>
+      <div className="flex justify-between">
+        <div className="flex gap-2">
+          <Folder />
+          <span>{data?.folder_name}</span>
+        </div>
+        <button className="group cursor-pointer" onClick={deleteFolder}>
+          <Trash2 className="group-hover:text-red-600" />
+        </button>
       </div>
-      <button onClick={deleteFolder}>
-        <Trash2 />
-      </button>
     </>
   );
 };

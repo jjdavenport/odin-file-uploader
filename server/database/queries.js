@@ -45,7 +45,7 @@ const getFilesByUser = async (userId) => {
 
 const deleteFileById = async (id) => {
   return await prisma.upload.delete({
-    data: { id: id },
+    where: { id: Number(id) },
   });
 };
 
@@ -75,7 +75,7 @@ const getFolderById = async (id) => {
 
 const deleteFolderById = async (id) => {
   return await prisma.folder.delete({
-    where: { id: id },
+    where: { id: Number(id) },
   });
 };
 

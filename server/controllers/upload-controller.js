@@ -42,6 +42,7 @@ exports.deleteFile = async (req, res) => {
     await deleteFileById(id);
     return res.status(200).json({ success: true, message: "file deleted" });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ success: false, message: "server error" });
   }
 };
@@ -85,7 +86,6 @@ exports.file = async (req, res) => {
       .status(200)
       .json({ success: true, message: "returned file", file });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ success: false, message: "server error" });
   }
 };
@@ -97,15 +97,13 @@ exports.folder = async (req, res) => {
       .status(200)
       .json({ success: true, message: "returned folder", folder });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ success: false, message: "server error" });
   }
 };
 
 exports.deleteFolder = async (req, res) => {
-  const { id } = req.params.id;
   try {
-    await deleteFolderById(id);
+    await deleteFolderById(req.params.id);
     return res.status(200).json({ success: true, message: "folder deleted" });
   } catch (error) {
     return res.status(500).json({ success: false, message: "server error" });
