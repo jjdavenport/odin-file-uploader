@@ -9,6 +9,8 @@ import {
   FilesPage,
   NewFolderPage,
   FolderPage,
+  FileEditPage,
+  FolderEditPage,
 } from "./pages/index.ts";
 import "./index.css";
 import App from "./App.tsx";
@@ -45,6 +47,14 @@ const router = createBrowserRouter([
       {
         path: "folder/:id",
         element: <FolderPage />,
+      },
+      {
+        path: "file/:id/edit",
+        element: <FileEditPage />,
+      },
+      {
+        path: "folder/:id/edit",
+        element: <FolderEditPage />,
       },
     ],
   },

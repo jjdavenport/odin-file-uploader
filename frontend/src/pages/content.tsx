@@ -6,6 +6,8 @@ import {
   NewFolder,
   FileDetail,
   FolderDetail,
+  EditFolder,
+  EditFile,
 } from "../components/content";
 
 export const LoginPage = () => {
@@ -60,6 +62,22 @@ export const FolderPage = () => {
   return (
     <>
       <FolderDetail />
+    </>
+  );
+};
+
+export const FileEditPage = () => {
+  return (
+    <>
+      <EditFile />
+    </>
+  );
+};
+
+export const FolderEditPage = () => {
+  return (
+    <>
+      <EditFolder />
     </>
   );
 };

@@ -14,6 +14,7 @@ import {
   Download,
   Folder,
   ChevronRight,
+  Pencil,
 } from "lucide-react";
 
 type HeaderProps = {
@@ -618,9 +619,21 @@ export const UploadFile = () => {
   );
 };
 
+type FileOutletType = {
+  loggedIn: boolean;
+};
+
 export const Files = () => {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
+  const { loggedIn } = useOutletContext<FileOutletType>();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      navigate("/login/");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -705,10 +718,21 @@ export const Files = () => {
   );
 };
 
+type NewFolderOutletType = {
+  loggedIn: boolean;
+};
+
 export const NewFolder = () => {
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
+  const { loggedIn } = useOutletContext<NewFolderOutletType>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      navigate("/login/");
+    }
+  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -759,6 +783,13 @@ export const FileDetail = () => {
   const [data, setData] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const { loggedIn } = useOutletContext();
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      navigate("/login/");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -787,6 +818,9 @@ export const FileDetail = () => {
         <File />
         <span>{data?.file_original_name}</span>
       </div>
+      <Link to={`/file/${id}/edit/`}>
+        <Pencil />
+      </Link>
       <button className="group cursor-pointer" onClick={deleteFile}>
         <Trash2 className="group-hover:text-red-600" />
       </button>
@@ -794,10 +828,21 @@ export const FileDetail = () => {
   );
 };
 
+type FolderDetailOutletType = {
+  loggedIn: boolean;
+};
+
 export const FolderDetail = () => {
   const [data, setData] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const { loggedIn } = useOutletContext<FolderDetailOutletType>();
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      navigate("/login/");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchFolder = async () => {
@@ -827,10 +872,110 @@ export const FolderDetail = () => {
           <Folder />
           <span>{data?.folder_name}</span>
         </div>
+        <Link to={`/folder/${id}/edit/`}>
+          <Pencil />
+        </Link>
         <button className="group cursor-pointer" onClick={deleteFolder}>
           <Trash2 className="group-hover:text-red-600" />
         </button>
       </div>
+    </>
+  );
+};
+
+type EditFileOutletType = {
+  loggedIn: boolean;
+};
+
+export const EditFile = () => {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { loggedIn } = useOutletContext<EditFileOutletType>();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      navigate("/login/");
+    }
+  }, []);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    await fetch(`/api/auth/file/${id}/edit/`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: input }),
+    });
+    navigate("/files/");
+  };
+
+  const handleBlur = () => {};
+
+  return (
+    <>
+      <Form onSubmit={onSubmit}>
+        <Input
+          type="text"
+          error={error}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onBlur={handleBlur}
+          label="file name"
+          placeholder="file name"
+        />
+        <Button text="Update" />
+      </Form>
+    </>
+  );
+};
+
+type EditFolderOutletType = {
+  loggedIn: boolean;
+};
+
+export const EditFolder = () => {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { loggedIn } = useOutletContext<EditFolderOutletType>();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      navigate("/login/");
+    }
+  }, []);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    await fetch(`/api/auth/folder/${id}/edit`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name: input }),
+    });
+  };
+
+  const handleBlur = () => {};
+
+  return (
+    <>
+      <Form onSubmit={onSubmit}>
+        <Input
+          type="text"
+          error={error}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onBlur={handleBlur}
+          label="folder name"
+          placeholder="folder name"
+        />
+        <Button text="Update" />
+      </Form>
     </>
   );
 };

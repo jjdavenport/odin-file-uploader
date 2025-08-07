@@ -7,6 +7,8 @@ const {
   getFolderById,
   deleteFolderById,
   getFileById,
+  editFileById,
+  editFolderById,
 } = require("../database/queries");
 const path = require("path");
 const fs = require("fs");
@@ -119,6 +121,28 @@ exports.deleteFolder = async (req, res) => {
   try {
     await deleteFolderById(req.params.id);
     return res.status(200).json({ success: true, message: "folder deleted" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "server error" });
+  }
+};
+
+exports.editFile = async (req, res) => {
+  const id = req.params.id;
+  const { name } = req.body;
+  try {
+    await editFileById(id, name);
+    return res.status(200).json({ success: true, message: "message updated" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "server error" });
+  }
+};
+
+exports.editFolder = async (req, res) => {
+  const id = req.params.id;
+  const { name } = req.body;
+  try {
+    await editFolderById(id, name);
+    return res.status(200).json({ success: true, message: "updated folder" });
   } catch (error) {
     return res.status(500).json({ success: false, message: "server error" });
   }

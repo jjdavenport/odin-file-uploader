@@ -79,6 +79,20 @@ const deleteFolderById = async (id) => {
   });
 };
 
+const editFolderById = async (id, name) => {
+  return await prisma.folder.update({
+    where: { id: Number(id) },
+    data: { folder_name: name },
+  });
+};
+
+const editFileById = async (id, name) => {
+  return await prisma.upload.update({
+    where: { id: Number(id) },
+    data: { file_original_name: name },
+  });
+};
+
 module.exports = {
   getUsernames,
   insertUser,
@@ -92,4 +106,6 @@ module.exports = {
   getFileById,
   getFolderById,
   deleteFolderById,
+  editFolderById,
+  editFileById,
 };

@@ -28,5 +28,7 @@ router.get("/folder/:id", authenticate, uploadController.folder);
 router.delete("/folder/:id", authenticate, uploadController.deleteFolder);
 router.delete("/file/:id", authenticate, uploadController.deleteFile);
 router.get("/status/", authenticate, authController.status);
+router.post("/file/:id/edit/", authenticate, uploadController.editFile);
+router.post("/folder/:id/edit/", authenticate, uploadController.editFolder);
 
 module.exports = router;
