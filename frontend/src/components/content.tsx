@@ -1,5 +1,11 @@
 import type React from "react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router";
 import {
   Upload,
@@ -11,8 +17,8 @@ import {
 } from "lucide-react";
 
 type HeaderProps = {
+  setLoggedIn: React.Dispatch<SetStateAction<boolean>>;
   loggedIn: boolean;
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const Header = ({ loggedIn, setLoggedIn }: HeaderProps) => {
@@ -88,7 +94,7 @@ type LoginErrorsType = {
 };
 
 type OutletType = {
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  authenticate: () => void;
 };
 
 export const Login = () => {
@@ -101,7 +107,7 @@ export const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
-  const { setLoggedIn } = useOutletContext<OutletType>();
+  const { authenticate } = useOutletContext<OutletType>();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -146,7 +152,7 @@ export const Login = () => {
           username: "",
           password: "",
         });
-        setLoggedIn(true);
+        authenticate();
         navigate("/");
         return;
       }
