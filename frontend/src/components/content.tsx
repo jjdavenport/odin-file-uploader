@@ -47,6 +47,9 @@ export const Header = ({ loggedIn, setLoggedIn }: HeaderProps) => {
       <nav className="flex items-center gap-4">
         {loggedIn ? (
           <>
+            <Link to="/" className="hover:underline">
+              Home
+            </Link>
             <Link className="hover:underline" to="/files/">
               Files
             </Link>
@@ -96,6 +99,7 @@ type LoginErrorsType = {
 
 type OutletType = {
   authenticate: () => void;
+  loggedIn: boolean;
 };
 
 export const Login = () => {
@@ -108,7 +112,13 @@ export const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
-  const { authenticate } = useOutletContext<OutletType>();
+  const { authenticate, loggedIn } = useOutletContext<OutletType>();
+
+  useEffect(() => {
+    if (loggedIn === true) {
+      navigate("/");
+    }
+  }, [loggedIn]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -248,6 +258,10 @@ type RegisterErrorsType = {
   confirmPassword?: string;
 };
 
+type RegisterOutletType = {
+  loggedIn: boolean;
+};
+
 export const Register = () => {
   const [input, setInput] = useState({
     username: "",
@@ -260,6 +274,13 @@ export const Register = () => {
     confirmPassword: "",
   });
   const navigate = useNavigate();
+  const { loggedIn } = useOutletContext<RegisterOutletType>();
+
+  useEffect(() => {
+    if (loggedIn === true) {
+      navigate("/");
+    }
+  }, [loggedIn]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -633,7 +654,7 @@ export const Files = () => {
     if (loggedIn === false) {
       navigate("/login/");
     }
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -683,12 +704,12 @@ export const Files = () => {
       <ul>
         {folders.map((i, index) => (
           <li key={index}>
-            <Link to={`/folder/${i.id}`} className="flex justify-between">
+            <Link to={`/folder/${i.id}`} className="group flex justify-between">
               <div className="flex gap-2">
                 <Folder />
                 <span>{i.folder_name}</span>
               </div>
-              <ChevronRight />
+              <ChevronRight className="group-hover:text-green-600" />
             </Link>
           </li>
         ))}
@@ -732,7 +753,7 @@ export const NewFolder = () => {
     if (loggedIn === false) {
       navigate("/login/");
     }
-  }, []);
+  }, [loggedIn]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -779,17 +800,21 @@ export const NewFolder = () => {
   );
 };
 
+type FileDetailOutletType = {
+  loggedIn: boolean;
+};
+
 export const FileDetail = () => {
   const [data, setData] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
-  const { loggedIn } = useOutletContext();
+  const { loggedIn } = useOutletContext<FileDetailOutletType>();
 
   useEffect(() => {
     if (loggedIn === false) {
       navigate("/login/");
     }
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -809,21 +834,40 @@ export const FileDetail = () => {
       method: "DELETE",
       credentials: "include",
     });
-    navigate("");
+    navigate("/files/");
   };
 
   return (
     <>
-      <div>
-        <File />
-        <span>{data?.file_original_name}</span>
+      <div className="flex justify-between">
+        <div className="flex flex-col gap-2">
+          <File />
+          <div className="flex gap-2">
+            <span>File name:</span>
+            <span>{data?.file_original_name}</span>
+          </div>
+          <div className="flex gap-2">
+            <span>File type:</span>
+            <span>{data?.file_type}</span>
+          </div>
+          <div className="flex gap-2">
+            <span>File size:</span>
+            <span>{data?.file_size}</span>
+          </div>
+          <div className="flex gap-2">
+            <span>Created at:</span>
+            <span>{new Date(data?.created_at).toLocaleDateString()}</span>
+          </div>
+        </div>
+        <div className="flex items-start gap-4">
+          <Link className="group" to={`/file/${id}/edit/`}>
+            <Pencil className="group-hover:text-green-600" />
+          </Link>
+          <button className="group cursor-pointer" onClick={deleteFile}>
+            <Trash2 className="group-hover:text-red-600" />
+          </button>
+        </div>
       </div>
-      <Link to={`/file/${id}/edit/`}>
-        <Pencil />
-      </Link>
-      <button className="group cursor-pointer" onClick={deleteFile}>
-        <Trash2 className="group-hover:text-red-600" />
-      </button>
     </>
   );
 };
@@ -842,7 +886,7 @@ export const FolderDetail = () => {
     if (loggedIn === false) {
       navigate("/login/");
     }
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     const fetchFolder = async () => {
@@ -852,6 +896,7 @@ export const FolderDetail = () => {
         method: "GET",
       });
       const result = await response.json();
+      console.log(result);
       setData(result.folder);
     };
     fetchFolder();
@@ -867,17 +912,22 @@ export const FolderDetail = () => {
 
   return (
     <>
-      <div className="flex justify-between">
-        <div className="flex gap-2">
-          <Folder />
-          <span>{data?.folder_name}</span>
+      <div className="flex flex-col">
+        <div className="flex justify-between">
+          <div className="flex gap-2">
+            <Folder />
+            <span>{data?.folder_name}</span>
+            <span>{new Date(data?.created_at).toLocaleString()}</span>
+          </div>
+          <div className="flex gap-4">
+            <Link className="group" to={`/folder/${id}/edit/`}>
+              <Pencil className="group-hover:text-green-600" />
+            </Link>
+            <button className="group cursor-pointer" onClick={deleteFolder}>
+              <Trash2 className="group-hover:text-red-600" />
+            </button>
+          </div>
         </div>
-        <Link to={`/folder/${id}/edit/`}>
-          <Pencil />
-        </Link>
-        <button className="group cursor-pointer" onClick={deleteFolder}>
-          <Trash2 className="group-hover:text-red-600" />
-        </button>
       </div>
     </>
   );
@@ -889,6 +939,7 @@ type EditFileOutletType = {
 
 export const EditFile = () => {
   const [input, setInput] = useState("");
+  const [folders, setFolders] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { loggedIn } = useOutletContext<EditFileOutletType>();
@@ -898,7 +949,7 @@ export const EditFile = () => {
     if (loggedIn === false) {
       navigate("/login/");
     }
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -913,6 +964,20 @@ export const EditFile = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchFolders = async () => {
+      const response = await fetch("/api/auth/folders", {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+      });
+      const result = await response.json();
+      console.log(result);
+      setFolders(result);
+    };
+    fetchFolders();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -925,7 +990,13 @@ export const EditFile = () => {
     navigate("/files/");
   };
 
-  const handleBlur = () => {};
+  const handleBlur = () => {
+    if (input === "") {
+      setError("cannot be blank");
+    } else {
+      setError("");
+    }
+  };
 
   return (
     <>
@@ -960,7 +1031,7 @@ export const EditFolder = () => {
     if (loggedIn === false) {
       navigate("/login/");
     }
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -987,7 +1058,13 @@ export const EditFolder = () => {
     navigate("/files/");
   };
 
-  const handleBlur = () => {};
+  const handleBlur = () => {
+    if (input === "") {
+      setError("cannot be blank");
+    } else {
+      setError("");
+    }
+  };
 
   return (
     <>
@@ -1003,6 +1080,28 @@ export const EditFolder = () => {
         />
         <Button text="Update" />
       </Form>
+    </>
+  );
+};
+
+type DropdownProp = {
+  list: [];
+};
+
+const Dropdown = ({ list }: DropdownProp) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div>
+        <button onClick={() => setOpen(!open)}>Folders</button>
+        <ul>
+          {list.map((i, index) => (
+            <li key={index}>
+              <button>{i.text}</button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 };
