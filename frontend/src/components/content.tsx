@@ -900,6 +900,19 @@ export const EditFile = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`/api/auth/file/${id}`, {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+      });
+      const result = await response.json();
+      setInput(result.file.file_original_name ?? "");
+    };
+    fetchData();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -949,6 +962,19 @@ export const EditFolder = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`/api/auth/folder/${id}`, {
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        method: "GET",
+      });
+      const result = await response.json();
+      setInput(result.folder.folder_name ?? "");
+    };
+    fetchData();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -958,6 +984,7 @@ export const EditFolder = () => {
       credentials: "include",
       body: JSON.stringify({ name: input }),
     });
+    navigate("/files/");
   };
 
   const handleBlur = () => {};
