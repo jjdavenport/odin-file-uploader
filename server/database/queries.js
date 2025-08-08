@@ -86,10 +86,13 @@ const editFolderById = async (id, name) => {
   });
 };
 
-const editFileById = async (id, name) => {
+const editFileById = async (id, name, folderId) => {
   return await prisma.upload.update({
     where: { id: Number(id) },
-    data: { file_original_name: name },
+    data: {
+      file_original_name: name,
+      folder: folderId ? { connect: { id: folderId } } : { disconnect: true },
+    },
   });
 };
 

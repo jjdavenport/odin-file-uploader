@@ -940,6 +940,10 @@ type EditFileOutletType = {
 export const EditFile = () => {
   const [input, setInput] = useState("");
   const [folders, setFolders] = useState([]);
+  const [folder, setFolder] = useState({
+    name: "none",
+    id: null,
+  });
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { loggedIn } = useOutletContext<EditFileOutletType>();
@@ -985,7 +989,7 @@ export const EditFile = () => {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: input }),
+      body: JSON.stringify({ name: input, folder: folder.id }),
     });
     navigate("/files/");
   };
@@ -1010,7 +1014,7 @@ export const EditFile = () => {
           label="file name"
           placeholder="file name"
         />
-        <Dropdown list={folders} />
+        <Dropdown folder={folder} setFolder={setFolder} list={folders} />
         <Button text="Update" />
       </Form>
     </>
@@ -1085,21 +1089,25 @@ export const EditFolder = () => {
   );
 };
 
-type DropdownProp = {
+type DropdownProps = {
   list: [];
+  folder: string;
+  setFolder: (e: React.Dispatch<SetStateAction>) => void;
 };
 
-const Dropdown = ({ list }: DropdownProp) => {
+const Dropdown = ({ list, folder, setFolder }: DropdownProps) => {
   const [open, setOpen] = useState(false);
-  const [folder, setFolder] = useState("none");
 
   const handleDefault = () => {
-    setFolder("Select folder");
+    setFolder((prev) => ({ ...prev, name: "select folder" }));
     setOpen(!open);
   };
 
-  const handleSelect = (name: string) => {
-    setFolder(name);
+  const handleSelect = (id: number, name: string) => {
+    setFolder({
+      id,
+      name,
+    });
     setOpen(!open);
   };
 
@@ -1113,7 +1121,7 @@ const Dropdown = ({ list }: DropdownProp) => {
             className="w-full cursor-pointer p-1 text-center outline"
             onClick={handleDefault}
           >
-            {folder}
+            {folder.name}
           </button>
           {open && (
             <ul className="divide-y">
@@ -1131,7 +1139,7 @@ const Dropdown = ({ list }: DropdownProp) => {
                   <button
                     className="cursor-pointer p-1 text-center"
                     type="button"
-                    onClick={() => handleSelect(i.folder_name)}
+                    onClick={() => handleSelect(i.id, i.folder_name)}
                   >
                     {i.folder_name}
                   </button>
