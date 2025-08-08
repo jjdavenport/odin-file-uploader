@@ -973,7 +973,7 @@ export const EditFile = () => {
       });
       const result = await response.json();
       console.log(result);
-      setFolders(result);
+      setFolders(result.folders);
     };
     fetchFolders();
   }, []);
@@ -1010,6 +1010,7 @@ export const EditFile = () => {
           label="file name"
           placeholder="file name"
         />
+        <Dropdown list={folders} />
         <Button text="Update" />
       </Form>
     </>
@@ -1090,17 +1091,55 @@ type DropdownProp = {
 
 const Dropdown = ({ list }: DropdownProp) => {
   const [open, setOpen] = useState(false);
+  const [folder, setFolder] = useState("none");
+
+  const handleDefault = () => {
+    setFolder("Select folder");
+    setOpen(!open);
+  };
+
+  const handleSelect = (name: string) => {
+    setFolder(name);
+    setOpen(!open);
+  };
+
   return (
     <>
       <div>
-        <button onClick={() => setOpen(!open)}>Folders</button>
-        <ul>
-          {list.map((i, index) => (
-            <li key={index}>
-              <button>{i.text}</button>
-            </li>
-          ))}
-        </ul>
+        <label htmlFor="folder">Folder</label>
+        <div className="flex flex-col outline">
+          <button
+            type="button"
+            className="w-full cursor-pointer p-1 text-center outline"
+            onClick={handleDefault}
+          >
+            {folder}
+          </button>
+          {open && (
+            <ul className="divide-y">
+              <li>
+                <button
+                  className="cursor-pointer p-1 text-center"
+                  type="button"
+                  onClick={handleDefault}
+                >
+                  Select folder
+                </button>
+              </li>
+              {list.map((i, index) => (
+                <li key={index}>
+                  <button
+                    className="cursor-pointer p-1 text-center"
+                    type="button"
+                    onClick={() => handleSelect(i.folder_name)}
+                  >
+                    {i.folder_name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </>
   );
