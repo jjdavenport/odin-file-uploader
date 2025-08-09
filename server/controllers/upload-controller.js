@@ -128,9 +128,9 @@ exports.deleteFolder = async (req, res) => {
 
 exports.editFile = async (req, res) => {
   const id = req.params.id;
-  const { name, folder } = req.body;
+  const { name, folderId, folderName } = req.body;
   try {
-    await editFileById(id, name, folder);
+    await editFileById(id, name, folderId, folderName);
     return res.status(200).json({ success: true, message: "message updated" });
   } catch (error) {
     console.error(error);

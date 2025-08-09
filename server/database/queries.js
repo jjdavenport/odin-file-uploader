@@ -70,13 +70,21 @@ const getFileById = async (id) => {
 const getFolderById = async (id) => {
   return await prisma.folder.findUnique({
     where: { id: Number(id) },
+    include: {
+      files: true,
+    },
   });
 };
 
 const deleteFolderById = async (id) => {
-  return await prisma.folder.delete({
-    where: { id: Number(id) },
-  });
+  await prisma.$transaction([
+    prisma.upload.deleteMany({
+      where: { folderId: Number(id) },
+    }),
+    prisma.folder.delete({
+      where: { id: Number(id) },
+    }),
+  ]);
 };
 
 const editFolderById = async (id, name) => {
@@ -86,11 +94,12 @@ const editFolderById = async (id, name) => {
   });
 };
 
-const editFileById = async (id, name, folderId) => {
+const editFileById = async (id, name, folderId, folderName) => {
   return await prisma.upload.update({
     where: { id: Number(id) },
     data: {
       file_original_name: name,
+      folder_name: folderName,
       folder: folderId ? { connect: { id: folderId } } : { disconnect: true },
     },
   });

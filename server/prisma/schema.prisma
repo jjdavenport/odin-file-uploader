@@ -25,7 +25,8 @@ model Upload {
     userId Int
     user User @relation(fields: [userId], references: [id])
     folderId Int?
-    folder Folder? @relation(fields: [folderId], references: [id])
+    folder_name String?
+    folder Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
 }
 
 model Session {

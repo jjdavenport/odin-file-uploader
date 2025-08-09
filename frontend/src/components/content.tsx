@@ -878,6 +878,7 @@ type FolderDetailOutletType = {
 
 export const FolderDetail = () => {
   const [data, setData] = useState(null);
+  const [files, setFiles] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
   const { loggedIn } = useOutletContext<FolderDetailOutletType>();
@@ -898,6 +899,7 @@ export const FolderDetail = () => {
       const result = await response.json();
       console.log(result);
       setData(result.folder);
+      setFiles(result.folder.files);
     };
     fetchFolder();
   }, [id]);
@@ -928,6 +930,21 @@ export const FolderDetail = () => {
             </button>
           </div>
         </div>
+        {files.length > 0 && (
+          <>
+            <span className="text-lg">Files</span>
+            <ul>
+              {files.map((i, index) => (
+                <li key={index}>
+                  <Link className="flex gap-2" to={`/file/${i.id}`}>
+                    <File />
+                    <span>{i.file_original_name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </>
   );
@@ -941,7 +958,7 @@ export const EditFile = () => {
   const [input, setInput] = useState("");
   const [folders, setFolders] = useState([]);
   const [folder, setFolder] = useState({
-    name: "none",
+    name: null,
     id: null,
   });
   const [error, setError] = useState("");
@@ -963,7 +980,12 @@ export const EditFile = () => {
         credentials: "include",
       });
       const result = await response.json();
+      console.log(result);
       setInput(result.file.file_original_name ?? "");
+      setFolder({
+        id: result.file.folderID,
+        name: result.file.folder_name,
+      });
     };
     fetchData();
   }, []);
@@ -976,7 +998,6 @@ export const EditFile = () => {
         credentials: "include",
       });
       const result = await response.json();
-      console.log(result);
       setFolders(result.folders);
     };
     fetchFolders();
@@ -989,7 +1010,11 @@ export const EditFile = () => {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: input, folder: folder.id }),
+      body: JSON.stringify({
+        name: input,
+        folderId: folder.id,
+        folderName: folder.name,
+      }),
     });
     navigate("/files/");
   };
@@ -1090,65 +1115,60 @@ export const EditFolder = () => {
 };
 
 type DropdownProps = {
-  list: [];
-  folder: string;
-  setFolder: (e: React.Dispatch<SetStateAction>) => void;
+  list: any[];
+  folder: { id: number | null; name: string | null };
+  setFolder: React.Dispatch<
+    React.SetStateAction<{ id: number | null; name: string | null }>
+  >;
 };
 
 const Dropdown = ({ list, folder, setFolder }: DropdownProps) => {
   const [open, setOpen] = useState(false);
 
-  const handleDefault = () => {
-    setFolder((prev) => ({ ...prev, name: "select folder" }));
-    setOpen(!open);
-  };
-
   const handleSelect = (id: number, name: string) => {
-    setFolder({
-      id,
-      name,
-    });
-    setOpen(!open);
+    setFolder({ id, name });
+    setOpen(false);
   };
 
   return (
-    <>
-      <div>
-        <label htmlFor="folder">Folder</label>
-        <div className="flex flex-col outline">
-          <button
-            type="button"
-            className="w-full cursor-pointer p-1 text-center outline"
-            onClick={handleDefault}
-          >
-            {folder.name}
-          </button>
-          {open && (
-            <ul className="divide-y">
-              <li>
+    <div>
+      <label htmlFor="folder">Folder</label>
+      <div className="flex flex-col outline">
+        <button
+          type="button"
+          className="w-full cursor-pointer p-1 text-center outline"
+          onClick={() => setOpen(!open)}
+        >
+          {folder.name ?? "Select Folder"}
+        </button>
+        {open && (
+          <ul className="divide-y">
+            <li>
+              <button
+                className="cursor-pointer p-1 text-center"
+                type="button"
+                onClick={() => {
+                  setFolder({ name: null, id: null });
+                  setOpen(false);
+                }}
+              >
+                Select Folder
+              </button>
+            </li>
+            {list.map((i, index) => (
+              <li key={index}>
                 <button
                   className="cursor-pointer p-1 text-center"
                   type="button"
-                  onClick={handleDefault}
+                  onClick={() => handleSelect(i.id, i.folder_name)}
                 >
-                  Select folder
+                  {i.folder_name}
                 </button>
               </li>
-              {list.map((i, index) => (
-                <li key={index}>
-                  <button
-                    className="cursor-pointer p-1 text-center"
-                    type="button"
-                    onClick={() => handleSelect(i.id, i.folder_name)}
-                  >
-                    {i.folder_name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+            ))}
+          </ul>
+        )}
       </div>
-    </>
+    </div>
   );
 };
