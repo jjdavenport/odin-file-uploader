@@ -715,25 +715,27 @@ export const Files = () => {
         ))}
       </ul>
       <ul className="flex flex-col gap-2">
-        {files.map((i, index) => (
-          <li className="flex justify-between gap-2" key={index}>
-            <Link to={`/file/${i.id}`} className="flex gap-2">
-              <File />
-              <span>{i.file_original_name}</span>
-            </Link>
-            <nav className="flex gap-4">
-              <button className="group cursor-pointer" onClick={downloadFile}>
-                <Download className="group-hover:text-blue-600" />
-              </button>
-              <button
-                className="group cursor-pointer"
-                onClick={() => deleteFile(i.id)}
-              >
-                <Trash2 className="group-hover:text-red-600" />
-              </button>
-            </nav>
-          </li>
-        ))}
+        {files
+          .filter((file) => file.folder_name === null)
+          .map((i, index) => (
+            <li className="flex justify-between gap-2" key={index}>
+              <Link to={`/file/${i.id}`} className="flex gap-2">
+                <File />
+                <span>{i.file_original_name}</span>
+              </Link>
+              <nav className="flex gap-4">
+                <button className="group cursor-pointer" onClick={downloadFile}>
+                  <Download className="group-hover:text-blue-600" />
+                </button>
+                <button
+                  className="group cursor-pointer"
+                  onClick={() => deleteFile(i.id)}
+                >
+                  <Trash2 className="group-hover:text-red-600" />
+                </button>
+              </nav>
+            </li>
+          ))}
       </ul>
     </>
   );
@@ -897,7 +899,6 @@ export const FolderDetail = () => {
         method: "GET",
       });
       const result = await response.json();
-      console.log(result);
       setData(result.folder);
       setFiles(result.folder.files);
     };
@@ -912,9 +913,17 @@ export const FolderDetail = () => {
     navigate("/files/");
   };
 
+  const deleteFile = async (id: number) => {
+    await fetch(`/api/auth/delete-file/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    navigate(-1);
+  };
+
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-2">
         <div className="flex justify-between">
           <div className="flex gap-2">
             <Folder />
@@ -933,13 +942,24 @@ export const FolderDetail = () => {
         {files.length > 0 && (
           <>
             <span className="text-lg">Files</span>
-            <ul>
+            <ul className="flex flex-col gap-4">
               {files.map((i, index) => (
-                <li key={index}>
+                <li className="flex justify-between" key={index}>
                   <Link className="flex gap-2" to={`/file/${i.id}`}>
                     <File />
                     <span>{i.file_original_name}</span>
                   </Link>
+                  <nav className="flex gap-4">
+                    <Link className="group" to={`/file/${i.id}/edit/`}>
+                      <Pencil className="group-hover:text-green-600" />
+                    </Link>
+                    <button
+                      onClick={() => deleteFile(i.id)}
+                      className="group cursor-pointer"
+                    >
+                      <Trash2 className="group-hover:text-red-600" />
+                    </button>
+                  </nav>
                 </li>
               ))}
             </ul>
@@ -980,7 +1000,6 @@ export const EditFile = () => {
         credentials: "include",
       });
       const result = await response.json();
-      console.log(result);
       setInput(result.file.file_original_name ?? "");
       setFolder({
         id: result.file.folderID,
@@ -1016,7 +1035,7 @@ export const EditFile = () => {
         folderName: folder.name,
       }),
     });
-    navigate("/files/");
+    navigate(-1);
   };
 
   const handleBlur = () => {
@@ -1115,7 +1134,7 @@ export const EditFolder = () => {
 };
 
 type DropdownProps = {
-  list: any[];
+  list: [];
   folder: { id: number | null; name: string | null };
   setFolder: React.Dispatch<
     React.SetStateAction<{ id: number | null; name: string | null }>
