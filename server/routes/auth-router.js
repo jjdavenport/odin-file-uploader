@@ -20,7 +20,7 @@ router.delete(
   authenticate,
   uploadController.deleteFolder
 );
-router.get("/download-file/", authenticate, uploadController.downloadFile);
+router.get("/download-file/:id", authenticate, uploadController.downloadFile);
 router.post("/new-folder/", authenticate, uploadController.newFolder);
 router.get("/folders/", authenticate, uploadController.folders);
 router.get("/file/:id", authenticate, uploadController.file);

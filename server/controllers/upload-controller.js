@@ -65,6 +65,14 @@ exports.deleteFile = async (req, res) => {
 
 exports.downloadFile = async (req, res) => {
   try {
+    const file = await getFileById(req.params.id);
+    if (!file) {
+      return res
+        .status(404)
+        .json({ success: false, message: "file not found" });
+    }
+    const filePath = path.join(__dirname, "../uploads", file.file_name);
+    return res.download(filePath, file.file_original_name);
   } catch (error) {
     return res
       .status(500)

@@ -534,6 +534,7 @@ type UploadOutletType = {
 export const UploadFile = () => {
   const [file, setFile] = useState(null);
   const [drag, setDrag] = useState(false);
+  const [error, setError] = useState(false);
   const dragging = useRef(0);
   const inputRef = useRef(null);
   const { loggedIn } = useOutletContext<UploadOutletType>();
@@ -542,7 +543,10 @@ export const UploadFile = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    if (!file) return;
+    if (!file) {
+      setError(true);
+      return;
+    }
     formData.append("file", file);
 
     try {
@@ -552,6 +556,7 @@ export const UploadFile = () => {
         credentials: "include",
       });
       if (response.ok) {
+        setError(false);
         setFile(null);
       }
     } catch {
@@ -612,7 +617,7 @@ export const UploadFile = () => {
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className={`${drag ? "bg-gray-400/20" : "bg-transparent"} flex cursor-pointer justify-center p-4 outline`}
+              className={`${error ? "outline-red-600" : "outline-black"} ${drag ? "bg-gray-400/20" : "bg-transparent"} flex cursor-pointer justify-center p-4 outline`}
             >
               <Upload />
             </button>
@@ -689,13 +694,6 @@ export const Files = () => {
     });
   };
 
-  const downloadFile = async () => {
-    await fetch("/api/auth/download-file", {
-      method: "GET",
-      credentials: "include",
-    });
-  };
-
   return (
     <>
       <Link className="p-1 text-center outline" to="/new-folder/">
@@ -724,9 +722,16 @@ export const Files = () => {
                 <span>{i.file_original_name}</span>
               </Link>
               <nav className="flex gap-4">
-                <button className="group cursor-pointer" onClick={downloadFile}>
+                <a
+                  href={`/api/auth/download-file/${i.id}`}
+                  download
+                  className="group cursor-pointer"
+                >
                   <Download className="group-hover:text-blue-600" />
-                </button>
+                </a>
+                <Link className="group" to={`/file/${i.id}/edit/`}>
+                  <Pencil className="group-hover:text-green-600" />
+                </Link>
                 <button
                   className="group cursor-pointer"
                   onClick={() => deleteFile(i.id)}
@@ -870,6 +875,13 @@ export const FileDetail = () => {
           </button>
         </div>
       </div>
+      <a
+        download
+        className="p-1 text-center outline"
+        href={`/api/auth/download-file/${id}/`}
+      >
+        Download
+      </a>
     </>
   );
 };
@@ -950,6 +962,13 @@ export const FolderDetail = () => {
                     <span>{i.file_original_name}</span>
                   </Link>
                   <nav className="flex gap-4">
+                    <a
+                      download
+                      className="group"
+                      href={`/api/auth/download-file/${i.id}`}
+                    >
+                      <Download className="group-hover:text-blue-600" />
+                    </a>
                     <Link className="group" to={`/file/${i.id}/edit/`}>
                       <Pencil className="group-hover:text-green-600" />
                     </Link>
@@ -1002,7 +1021,7 @@ export const EditFile = () => {
       const result = await response.json();
       setInput(result.file.file_original_name ?? "");
       setFolder({
-        id: result.file.folderID,
+        id: result.file.folderId,
         name: result.file.folder_name,
       });
     };
@@ -1035,7 +1054,7 @@ export const EditFile = () => {
         folderName: folder.name,
       }),
     });
-    navigate(-1);
+    navigate("/files/");
   };
 
   const handleBlur = () => {
