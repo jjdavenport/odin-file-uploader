@@ -695,6 +695,7 @@ export const Files = () => {
       method: "DELETE",
       credentials: "include",
     });
+    await fetchFiles();
   };
 
   const handleDragEnter = (e: React.DragEvent<HTMLUListElement>) => {
