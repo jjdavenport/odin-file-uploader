@@ -27,6 +27,7 @@ model Upload {
     folderId Int?
     folder_name String?
     folder Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+    cloudinary_public_id String
 }
 
 model Session {

@@ -11,8 +11,7 @@ const {
   editFolderById,
 } = require("../database/queries");
 const path = require("path");
-const fs = require("fs");
-const { error } = require("console");
+const cloudinary = require("cloudinary").v2;
 
 exports.upload = async (req, res, next) => {
   if (!req.file) return res.status(400).json({ message: "no files" });
@@ -22,7 +21,8 @@ exports.upload = async (req, res, next) => {
       req.file.filename,
       req.file.originalname,
       req.file.mimetype,
-      req.file.size
+      req.file.size,
+      req.file.path
     );
     return res.status(200).json({ success: true, message: "file uploaded" });
   } catch (error) {
@@ -51,12 +51,10 @@ exports.deleteFile = async (req, res) => {
         .status(404)
         .json({ success: false, message: "file not found" });
 
-    const filePath = path.join(__dirname, "../uploads", file.file_name);
-    fs.unlink(filePath, (error) => {
-      if (error) {
-        console.error(error);
-      }
-    });
+    const result = await cloudinary.uploader.destroy(file.file_name);
+    if (result.result !== "ok") {
+      console.error(result);
+    }
     await deleteFileById(id);
     return res.status(200).json({ success: true, message: "file deleted" });
   } catch (error) {

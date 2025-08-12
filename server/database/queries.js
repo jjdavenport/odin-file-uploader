@@ -30,10 +30,18 @@ const insertUpload = async (
   file_name,
   file_original_name,
   file_type,
-  file_size
+  file_size,
+  cloudinary_public_id
 ) => {
   return await prisma.upload.create({
-    data: { userId, file_name, file_original_name, file_type, file_size },
+    data: {
+      userId,
+      file_name,
+      file_original_name,
+      file_type,
+      file_size,
+      cloudinary_public_id,
+    },
   });
 };
 
