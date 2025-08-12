@@ -652,6 +652,8 @@ type FileOutletType = {
 export const Files = () => {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
+  const [drag, setDrag] = useState(false);
+  const dragging = useRef(0);
   const { loggedIn } = useOutletContext<FileOutletType>();
   const navigate = useNavigate();
 
@@ -661,16 +663,17 @@ export const Files = () => {
     }
   }, [loggedIn]);
 
+  const fetchFiles = async () => {
+    const response = await fetch("/api/auth/files/", {
+      method: "GET",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+    });
+    const data = await response.json();
+    setFiles(data.files);
+  };
+
   useEffect(() => {
-    const fetchFiles = async () => {
-      const response = await fetch("/api/auth/files/", {
-        method: "GET",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-      });
-      const data = await response.json();
-      setFiles(data.files);
-    };
     fetchFiles();
   }, []);
 
@@ -694,6 +697,61 @@ export const Files = () => {
     });
   };
 
+  const handleDragEnter = (e: React.DragEvent<HTMLUListElement>) => {
+    e.preventDefault();
+    dragging.current += 1;
+    setDrag(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLUListElement>) => {
+    e.preventDefault();
+    dragging.current -= 1;
+    if (dragging.current === 0) {
+      setDrag(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLUListElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDragStart = (
+    e: React.DragEvent<HTMLUListElement>,
+    fileId: string,
+    fileName: string,
+  ) => {
+    e.dataTransfer.setData("fileId", fileId);
+    e.dataTransfer.setData("fileName", fileName);
+  };
+
+  const handleDrop = async (
+    e: React.DragEvent<HTMLUListElement>,
+    folderId: number,
+    folderName: string,
+  ) => {
+    e.preventDefault();
+    setDrag(false);
+    const fileId = e.dataTransfer.getData("fileId");
+    const fileName = e.dataTransfer.getData("fileName");
+    if (!fileId || !fileName) return;
+
+    console.log(fileName);
+
+    await fetch(`/api/auth/file/${fileId}/edit/`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        id: fileId,
+        name: fileName,
+        folderId: folderId,
+        folderName: folderName,
+      }),
+    });
+
+    await fetchFiles();
+  };
+
   return (
     <>
       <Link className="p-1 text-center outline" to="/new-folder/">
@@ -701,8 +759,18 @@ export const Files = () => {
       </Link>
       <ul>
         {folders.map((i, index) => (
-          <li key={index}>
-            <Link to={`/folder/${i.id}`} className="group flex justify-between">
+          <li
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, i.id, i.folder_name)}
+            key={index}
+            className={drag ? "bg-gray-500/20" : "bg-transparent"}
+          >
+            <Link
+              to={`/folder/${i.id}`}
+              className="group flex justify-between p-1"
+            >
               <div className="flex gap-2">
                 <Folder />
                 <span>{i.folder_name}</span>
@@ -716,7 +784,14 @@ export const Files = () => {
         {files
           .filter((file) => file.folder_name === null)
           .map((i, index) => (
-            <li className="flex justify-between gap-2" key={index}>
+            <li
+              onDragStart={(e) =>
+                handleDragStart(e, i.id, i.file_original_name)
+              }
+              draggable={true}
+              className="flex justify-between gap-2 p-1"
+              key={index}
+            >
               <Link to={`/file/${i.id}`} className="flex gap-2">
                 <File />
                 <span>{i.file_original_name}</span>
@@ -936,7 +1011,7 @@ export const FolderDetail = () => {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between">
+        <div className="flex justify-between p-1">
           <div className="flex gap-2">
             <Folder />
             <span>{data?.folder_name}</span>
@@ -956,7 +1031,7 @@ export const FolderDetail = () => {
             <span className="text-lg">Files</span>
             <ul className="flex flex-col gap-4">
               {files.map((i, index) => (
-                <li className="flex justify-between" key={index}>
+                <li className="flex justify-between p-1" key={index}>
                   <Link className="flex gap-2" to={`/file/${i.id}`}>
                     <File />
                     <span>{i.file_original_name}</span>
@@ -1049,6 +1124,7 @@ export const EditFile = () => {
       credentials: "include",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
+        id: id,
         name: input,
         folderId: folder.id,
         folderName: folder.name,
