@@ -736,8 +736,6 @@ export const Files = () => {
     const fileName = e.dataTransfer.getData("fileName");
     if (!fileId || !fileName) return;
 
-    console.log(fileName);
-
     await fetch(`/api/auth/file/${fileId}/edit/`, {
       method: "POST",
       credentials: "include",

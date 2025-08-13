@@ -10,7 +10,6 @@ const {
   editFileById,
   editFolderById,
 } = require("../database/queries");
-const path = require("path");
 const cloudinary = require("cloudinary").v2;
 
 exports.upload = async (req, res, next) => {
@@ -71,9 +70,28 @@ exports.downloadFile = async (req, res) => {
         .status(404)
         .json({ success: false, message: "file not found" });
     }
-    const filePath = path.join(__dirname, "../uploads", file.file_name);
-    return res.download(filePath, file.file_original_name);
+
+    const fileUrl = cloudinary.url(file.cloudinary_public_id, {
+      resource_type: "raw",
+    });
+
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      console.error(`Failed to fetch file: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${file.file_original_name}"`
+    );
+    res.setHeader("Content-Type", response.headers.get("content-type"));
+
+    res.send(buffer);
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "failed to download" });
