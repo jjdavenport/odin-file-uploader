@@ -5,9 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm i && prisma db push --force-reset",
+    "build": "npm i",
     "dev": "node --watch app.js",
-    "start": "node app.js",
+    "start": "prisma db push && node app.js",
     "db": "node database/start-database.js"
   },
   "keywords": [],
