@@ -43,7 +43,7 @@ export const Header = ({ loggedIn, setLoggedIn }: HeaderProps) => {
 
   return (
     <header className="flex justify-between">
-      <h1 className="text-xl">fileUploader</h1>
+      <h1 className="text-xl font-medium">fileUploader</h1>
       <nav className="flex items-center gap-4">
         {loggedIn ? (
           <>
@@ -87,7 +87,7 @@ export const Wrapper = ({ children }: Prop) => {
 export const Container = ({ children }: Prop) => {
   return (
     <>
-      <div className="flex w-full max-w-xl flex-col gap-1 p-4">{children}</div>
+      <div className="flex w-full max-w-md flex-col gap-1 p-4">{children}</div>
     </>
   );
 };
@@ -604,7 +604,7 @@ export const UploadFile = () => {
                   <Trash2 className="group-hover:text-red-600" />
                 </button>
               </div>
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex h-60 flex-col items-center justify-center gap-2">
                 <File />
                 <span> {file.name}</span>
               </div>
@@ -617,9 +617,9 @@ export const UploadFile = () => {
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className={`${error ? "outline-red-600" : "outline-black"} ${drag ? "bg-gray-400/20" : "bg-transparent"} flex cursor-pointer justify-center p-4 outline`}
+              className={`${error ? "outline-red-600" : "outline-black"} ${drag ? "bg-gray-400/20" : "bg-transparent"} group flex h-60 cursor-pointer items-center justify-center p-4 outline`}
             >
-              <Upload />
+              <Upload className="group-hover:text-green-600" />
             </button>
           )}
 
@@ -633,8 +633,11 @@ export const UploadFile = () => {
         </Form>
       ) : (
         <div className="flex flex-col gap-4 p-4 outline">
-          <Link className="flex justify-center p-4 outline" to="/login/">
-            <Upload />
+          <Link
+            className="group flex h-60 items-center justify-center p-4 outline"
+            to="/login/"
+          >
+            <Upload className="group-hover:text-green-600" />
           </Link>
           <Link className="p-1 text-center outline" to="/login/">
             Upload
